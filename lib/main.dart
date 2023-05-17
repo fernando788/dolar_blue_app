@@ -24,10 +24,17 @@ class Album {
   final double value_sell;
   final double value_buy;
 
+  final double o_value_avg;
+  final double o_value_sell;
+  final double o_value_buy;
+
   const Album({
     required this.value_avg,
     required this.value_sell,
     required this.value_buy,
+    required this.o_value_avg,
+    required this.o_value_sell,
+    required this.o_value_buy,
   });
 
   factory Album.fromJson(Map<String, dynamic> json) {
@@ -35,6 +42,9 @@ class Album {
       value_avg: json['blue']['value_avg'],
       value_sell: json['blue']['value_sell'],
       value_buy: json['blue']['value_buy'],
+      o_value_avg: json['oficial']['value_avg'],
+      o_value_sell: json['oficial']['value_sell'],
+      o_value_buy: json['oficial']['value_buy'],
     );
   }
 }
@@ -60,6 +70,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Fetch Data Example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -68,27 +79,40 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Cotizacion Dolar Blue'),
         ),
-        body: Center(
-          child: FutureBuilder<Album>(
-            future: futureAlbum,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(
-                    'Dolar promedio: ${snapshot.data!.value_avg.toStringAsFixed(2)}\n'
-                    'Dolar venta: ${snapshot.data!.value_sell.toStringAsFixed(2)}\n'
-                    'Dolar compra: ${snapshot.data!.value_buy.toStringAsFixed(2)}',
-                    style: DefaultTextStyle.of(context)
-                        .style
-                        .apply(fontSizeFactor: 2.0));
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-
-              // By default, show a loading spinner.
-              return const CircularProgressIndicator();
-            },
+        body: ListView(children: <Widget>[
+          Container(
+            child: Image.network(
+                "https://img.decrypt.co/insecure/rs:fill:1024:512:1:0/plain/https://cdn.decrypt.co/wp-content/uploads/2020/10/Webp.net-resizeimage-70-gID_1.jpg@png"),
+            height: 198,
           ),
-        ),
+          Container(
+            color: Color.fromARGB(255, 227, 232, 227),
+            child: FutureBuilder<Album>(
+              future: futureAlbum,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Text(
+                      'Dolar Oficial:\n'
+                      '* Promedio: ${snapshot.data!.o_value_avg.toStringAsFixed(2)}\n'
+                      '* Venta: ${snapshot.data!.o_value_sell.toStringAsFixed(2)}\n'
+                      '* Compra: ${snapshot.data!.o_value_buy.toStringAsFixed(2)}\n\n\n'
+                      'Dolar Blue:\n'
+                      '* Promedio: ${snapshot.data!.value_avg.toStringAsFixed(2)}\n'
+                      '* Venta: ${snapshot.data!.value_sell.toStringAsFixed(2)}\n'
+                      '* Compra: ${snapshot.data!.value_buy.toStringAsFixed(2)}',
+                      style: DefaultTextStyle.of(context)
+                          .style
+                          .apply(fontSizeFactor: 2.0));
+                } else if (snapshot.hasError) {
+                  return Text('${snapshot.error}');
+                }
+
+                // By default, show a loading spinner.
+                return const CircularProgressIndicator();
+              },
+            ),
+          )
+        ]),
       ),
     );
   }
